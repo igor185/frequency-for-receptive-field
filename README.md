@@ -1,11 +1,19 @@
 # Frequency transformation for image recognition and inpainting
 
+### Initial result:
+1. SVC on mnist 91% accuracy, SVC on fft from mnist 84%
+2. Cifar-10 test 61% without fft, 69% with         
+val accuracy - orange with fft, grey without          
+![alt text](val_acc.png)
+
+
 ### Steps to do:
 - [ ] Test conda env
 - [ ] Fourier torch implementation
 - [ ] Wavelet torch implementation
 - [ ] Finish la classifier
-- [ ] Finish code&train conv fft
+- [x] Training for model with/without fft
+- [ ] Train bigger model to get bigger gap in performance
 - [ ] Repeat la classifier and conv training for wavelet 
 - [ ] Add results from lama with/without fft
 

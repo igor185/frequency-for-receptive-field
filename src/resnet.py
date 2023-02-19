@@ -164,7 +164,7 @@ class FourierUnit(nn.Module):
 
 class FFCResNet(nn.Module):
 
-    def __init__(self, layers, use_fourier, num_classes=1000, width_per_group=64, ratio=0.5, lfu=False,
+    def __init__(self, layers, use_fourier, in_channels=3, num_classes=1000, width_per_group=64, ratio=0.5, lfu=False,
                  use_se=False):
         super(FFCResNet, self).__init__()
 
@@ -176,7 +176,7 @@ class FFCResNet(nn.Module):
         self.base_width = width_per_group
         self.lfu = lfu
         self.use_se = use_se
-        self.conv1 = nn.Conv2d(3, self.channels, kernel_size=7, stride=2, padding=3, bias=False)
+        self.conv1 = nn.Conv2d(in_channels, self.channels, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(self.channels)
         self.relu = nn.ReLU(inplace=True)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -229,4 +229,4 @@ def resnet18_small(**kwargs):
 
 
 def resnet34_small(**kwargs):
-    return FFCResNet([3], **kwargs)
+    return FFCResNet([4], **kwargs)

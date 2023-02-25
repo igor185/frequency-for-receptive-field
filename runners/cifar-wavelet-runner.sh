@@ -1,0 +1,1 @@
+python main.py --model_type resnet18 --model wavelet --dataset cifar10 --seed 42 --epoch 200 > log_fourier.txt 2>&1

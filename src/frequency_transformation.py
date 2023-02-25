@@ -2,7 +2,6 @@ import math
 import numpy as np
 import torch
 
-
 def fft_torch_native(data, dim=(1, 2), combine="abs"):
     data = torch.fft.fft2(data, dim)
     if combine == "abs":
@@ -102,7 +101,14 @@ def wavelet_torch(data, combine="abs"):
 
 
 if __name__ == '__main__':
+    from pytorch_wavelets import DTCWTForward, DTCWTInverse
     img = torch.randn((1, 3, 512, 512)).float()
+
+
+    xfm = DTCWTForward(J=3, biort='near_sym_b', qshift='qshift_b')
+    Yl, Yh = xfm(img)
+    ifm = DTCWTInverse(biort='near_sym_b', qshift='qshift_b')
+    Y = ifm((Yl, Yh))
 
     f_4d_torch = torch.fft.rfftn(img, dim=(2, 3), norm='ortho')
     f_4d_my_c = rfftn(img, dim=(2, 3))

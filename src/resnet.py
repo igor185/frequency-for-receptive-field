@@ -1,5 +1,8 @@
+import os
+
 from torch import nn
 import torch
+from pytorch_wavelets import DWTForward, DWTInverse
 
 
 class BasicBlock(nn.Module):
@@ -112,14 +115,18 @@ class SpectralTransform(nn.Module):
             nn.BatchNorm2d(out_channels // 2),
             nn.ReLU(inplace=True)
         )
-        self.fu = FourierUnit(
-            out_channels // 2, out_channels // 2, groups)
+
+        if os.environ.get("TYPE", "wavelet") == "wavelet":
+            self.fu = WaveletUnit(
+                out_channels // 2, out_channels // 2, groups)
+        else:
+            self.fu = FourierUnit(
+                out_channels // 2, out_channels // 2, groups)
 
         self.conv2 = torch.nn.Conv2d(
             out_channels // 2, out_channels, kernel_size=1, groups=groups, bias=False)
 
     def forward(self, x):
-
         if self.down_sample:
             x = self.down_sample(x)
         x = self.conv1(x)
@@ -162,6 +169,43 @@ class FourierUnit(nn.Module):
         return output
 
 
+class WaveletUnit(nn.Module):
+
+    def __init__(self, in_channels, out_channels, groups=1):
+        super(WaveletUnit, self).__init__()
+        self.dwt = DWTForward(J=1, mode='zero', wave='db1')
+        self.idwt = DWTInverse(mode='zero', wave='db1')
+        self.conv_layer = torch.nn.Conv2d(in_channels=in_channels * 4, out_channels=out_channels * 4,
+                                          kernel_size=1, stride=1, padding=0, groups=groups, bias=False)
+        self.bn = torch.nn.BatchNorm2d(out_channels * 4)
+        self.relu = torch.nn.ReLU(inplace=True)
+
+    def forward(self, x):
+        batch, c, h, w = x.size()
+
+        # Wavelet decomposition
+        cA, c = self.dwt(x)
+
+        # Stack the coefficients
+        coefficients = torch.cat([cA[:, :, None], c[0]], dim=2)  # torch.stack([cA[:, :, None], c], dim=2)
+
+        # Reshape the coefficients for the convolutional layer
+        coefficients = coefficients.view(batch, -1, h // 2, w // 2)
+
+        # Convolutional layer
+        conv = self.conv_layer(coefficients)
+        conv = self.bn(conv)
+        conv = self.relu(conv)
+
+        # Reshape the coefficients back to the wavelet domain
+        coefficients = conv.view(batch, -1, 4, h // 2, w // 2)
+
+        # Inverse wavelet transform
+        output = self.idwt((coefficients[:, :, 0], [coefficients[:, :, 1:]]))
+
+        return output
+
+
 class FFCResNet(nn.Module):
 
     def __init__(self, layers, use_fourier, in_channels=3, num_classes=1000, width_per_group=64, ratio=0.5, lfu=False,
@@ -180,10 +224,10 @@ class FFCResNet(nn.Module):
         self.bn1 = nn.BatchNorm2d(self.channels)
         self.relu = nn.ReLU(inplace=True)
         self.max_pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(64 * 1, layers[0], stride=1, ratio_gin=0, ratio_gout=ratio)
+        self.layer1 = self._make_layer(64 * 1, layers[0] if not use_fourier else 4, stride=1, ratio_gin=0,
+                                       ratio_gout=ratio)
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Sequential(nn.Linear(32, num_classes), nn.Softmax())
-
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -197,7 +241,7 @@ class FFCResNet(nn.Module):
         skip_connection = None
         if stride != 1 or self.channels != planes or ratio_gin == 0:
             skip_connection = FFCBlock(self.channels, planes, kernel_size=1, stride=stride,
-                                         ratio_gin=ratio_gin, ratio_gout=ratio_gout, use_fourier=self.use_fourier)
+                                       ratio_gin=ratio_gin, ratio_gout=ratio_gout, use_fourier=self.use_fourier)
 
         layers = []
         layers.append(BasicBlock(self.channels, planes, self.use_fourier, stride, skip_connection, self.base_width,

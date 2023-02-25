@@ -62,8 +62,9 @@ if __name__ == '__main__':
     val_loader = torch.utils.data.DataLoader(val_ds, batch_size=config["batch_size"])
     test_loader = torch.utils.data.DataLoader(test_ds, batch_size=config["batch_size"]//4)
 
-    use_fourier = config["model"] == "fourier"
+    use_fourier = config["model"] != "conv"
     model = resnet18_small if config["model_type"] == "resnet18_small" else resnet34_small
+    os.environ["TYPE"] = type
     in_channels = 1 if config["dataset"] == "mnist" else 3
     model = model(num_classes=10, use_fourier=use_fourier, in_channels=in_channels).to(device)
 

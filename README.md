@@ -1,15 +1,5 @@
 # Frequency transformation for image recognition and inpainting
-Final report (in progress) [link](https://www.overleaf.com/project/63bef61cea42cfff2a2dfb5d)   
-Presentation (in progress) [link](https://docs.google.com/presentation/d/1DP341sTM0YM-R4mEzm6WRv9LWwWa1mL8C3gzxZy4NuY/edit?usp=sharing)
-
-### Steps to do:
-- [x] Fourier torch implementation
-- [ ] Wavelet torch implementation
-- [ ] Finish la classifier
-- [x] Train mnist and test on large-scale mnist
-- [x] Training for model with/without fft
-- [x] Train bigger model to get bigger gap in performance
-- [x] Add results from lama with/without fft
+This is repo from final project for course Linear Algebra. You can read final report [here](mid_report.pdf). For checking final score and plots you can use this [colab](https://colab.research.google.com/drive/1Z1VzWt5afsFELqomb8XyGTA8_LaUx7o5?usp=sharing) 
 
 ### Installation
 ```bash
@@ -28,20 +18,19 @@ python la_classification.py
 
 Train and evaluate cifar-10
 ```bash
-python main.py --model_type resnet18 --model conv --dataset cifar10 --seed 42 --epoch 200
-python main.py --model_type resnet18 --model fourier --dataset cifar10 --seed 42 --epoch 200
+bash runners/cifar-conv-runner.sh
+bash runners/cifar-fourier-runner.sh
+bash runners/cifar-wavelet-runner.sh
 ```
 
 
 ## Results
-- Classical classifiers (TODO):     
-    - SVM on mnist 91% accuracy, SVM on fft from mnist 84%     
-    -
+- Classical classifiers:     
+    - SVM on mnist 91% accuracy, SVM on fft from mnist 84%
 - Deep learning classifiers:     
     - Network trained on raw pixel performs better then network train on frequencies from pixels    
     - Cifar-10: Network(one resnet block) with fft on deep features performs 3% better then network without fft
-    - Mnist: tested on bigger size to see if fft helps to get better generalization, up to 15% accuracy on test bigger then without fft
-- Inpainting results:
+- Inpainting results(obtained after running inference from this [repo](https://github.com/advimman/lama) you should follow steps in that repo to obtain same result:   
 Input image:
 ![](lama_results/input_img.png)
 Inpainting without fft and dilated conv:

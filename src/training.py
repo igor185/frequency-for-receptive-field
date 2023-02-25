@@ -32,7 +32,7 @@ def train_epoch(model, data, val_loader, criterion, optimizer, writer, init_step
 
 def eval_model(model, data, device, path=None):
     if path and os.path.exists(path):
-        model.load_state_dict(torch.load(path))
+        model.load_state_dict(torch.load(path, map_location=device))
         print("Loaded for eval")
     model.eval()
     with torch.no_grad():

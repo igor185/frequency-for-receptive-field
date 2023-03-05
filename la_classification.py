@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     svm = LinearSVC(dual=False, verbose=True)
     print("Fit model fft")
-    svm.fit(test_x_fft.reshape(train_x.shape[0], -1), train_y)
-    pred = svm.predict(test_x.reshape(test_x.shape[0], -1))
+    svm.fit(train_x_fft.reshape(train_x_fft.shape[0], -1), train_y)
+    pred = svm.predict(test_x_fft.reshape(test_x_fft.shape[0], -1))
     print("Result fft")
     print(np.mean(test_y == pred))  # 0.8389

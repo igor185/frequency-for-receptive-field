@@ -2,8 +2,8 @@ import math
 import numpy as np
 import torch
 
-def fft_torch_native(data, dim=(1, 2), combine="abs"):
-    data = torch.fft.fft2(data, dim)
+def fft_torch_native(data, dim=[1, 2], combine="abs"):
+    data = torch.fft.fft2(data, dim=dim)
     if combine == "abs":
         return torch.absolute(data)
     elif combine == "stack":

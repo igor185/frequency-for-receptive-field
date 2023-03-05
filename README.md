@@ -1,5 +1,5 @@
 # Frequency transformation for image recognition and inpainting
-This is repo from final project for course Linear Algebra. You can read final report [here](mid_report.pdf). For checking final score and plots you can use this [colab](https://colab.research.google.com/drive/1Z1VzWt5afsFELqomb8XyGTA8_LaUx7o5?usp=sharing) 
+This is repo from final project for course Linear Algebra. You can read final report [here](Report_final.pdf). For checking final score and plots you can use this [colab](https://colab.research.google.com/drive/1Z1VzWt5afsFELqomb8XyGTA8_LaUx7o5?usp=sharing). Final video presention is available [here](https://drive.google.com/file/d/1LVA4Btr7sXj7otOleIfm8ilDOfPgE-KS/view?usp=share_link) 
 
 ### Installation
 ```bash
@@ -10,11 +10,6 @@ conda activate fft
 ```
 
 ### Running
-
-Run la classification
-```bash
-python la_classification.py
-```
 
 Train and evaluate cifar-10
 ```bash
